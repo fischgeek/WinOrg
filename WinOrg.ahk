@@ -85,7 +85,6 @@ class Guid {
 { ; housekeeping
 	#SingleInstance, Force
 	#Persistent
-	#Include ../../../Lib/Anchor.ahk
 	SetTitleMatchMode, 2
 	fileVersion = 3.0.8
 	cPath := A_AppData "\WinOrg"
@@ -133,16 +132,19 @@ class Guid {
 }
 
 { ; main gui
+	defaultWidth := 850
 	Gui, _Main_:Default
 	Gui, +MinSize +Resize ; +ToolWindow +Resize
+	#Include lib\class_log.ahk
+	#Include lib\class_utils.ahk
 	Gui, Color, White
 	Gui, Font, s9, Segoe UI
-	Gui, Add, Groupbox, w500 r10.5 vgrpBx1, Existing Window Management
-	Gui, Add, ListView, xp+15 yp+25 w470 r8 AltSubmit gSelectedItem vListSelection, ID|Identify By|Title|Class|Process|X|Y|W|H
+	Gui, Add, Groupbox, w%defaultWidth% r10.5 vgrpBx1, Existing Window Management
+	Gui, Add, ListView, % "xp+15 yp+25 r8 AltSubmit gSelectedItem vListSelection w" defaultWidth-30, ID|Identify By|Title|Class|Process|X|Y|W|H
 	Gui, Add, Button, Section Disabled gRemove vbtnRemove, Remove
 	Gui, Add, Button, ys wp Disabled gEdit vbtnEdit, Edit
 	Gui, Add, Button, ys gSetAll vbtnSetWindows, % "Set Windows"
-	Gui, Add, Text, ys vlblCurrentProfile w240 right, % "Current Profile: " currentActiveProfile
+	Gui, Add, Text, ys vlblCurrentProfile w580 right, % "Current Profile: " currentActiveProfile
 	Gui, Add, Groupbox, xm w500 r10 vgrpBx2, Window Information
 	Gui, Add, Radio, Section xp+15 yp+25 vRadMoveID, Window:
 	Gui, Add, Radio, yp+30, Class:
@@ -238,7 +240,7 @@ class Guid {
 SetTimer, GetActiveWin, 100
 ;~ SetTimer, CheckVersion, 100
 gosub, DataFetch
-if (trayTipCount < 3)
+;~ if (trayTipCount < 3)
 	Gui, Show, AutoSize Center, WinOrg
 
 
@@ -672,13 +674,11 @@ SaveCoords:
 	Gui, Submit, NoHide
 	SetTimer, WatchWin, Off
 	IniRead, currentActiveProfile, %config%, Settings, ActiveProfile, 0
-	if (!currentActiveProfile)
-	{
+	if (!currentActiveProfile) {
 		MsgBox, 4144, WinOrg 2.0, % "Please create a profile first before adding to WinOrg.`n`nYou can create a profile by going to the Profiles menu and selecting ""Manage Profiles"""
 		return
 	}
-	if (RadMoveID = 0)
-	{
+	if (RadMoveID = 0) {
 		MsgBox, 4144, Window Management, Please select a radio button for the MoveID. This will determine how the program will identify the window.
 		return
 	}
@@ -697,11 +697,10 @@ SaveCoords:
 	;~ IniRead, sequence, %config%, Settings, Sequence
 	;~ sequence++
 	sequence := new Guid().Small
-	MsgBox, % sequence
-	IniRead, currentProfile, %config%, Settings, ActiveProfile
+	;~ MsgBox, % sequence
 	;~ IniWrite, % sequence, %config%, Settings, Sequence
 	;~ IniWrite, % sequence, %config%, % sequence, SequenceID
-	IniWrite, % currentProfile, %config%, % sequence, Profile
+	IniWrite, % currentActiveProfile, %config%, % sequence, Profile
 	IniWrite, % dispWin, %config%, % sequence, Title
 	IniWrite, % dispClass, %config%, % sequence, Class
 	IniWrite, % dispProc, %config%,  % sequence, Process
@@ -722,7 +721,7 @@ SaveCoords:
 	GuiControl, Disable, btnSaveCoords
 	GuiControl, Show, btnSelectWin
 	GuiControl, Hide, btnCancelSelect
-	WinArray[sequence] := new Window(sequence, currentProfile, dispWin, dispClass, dispProc, dispX, dispY, dispW, dispH, RadMoveID)
+	WinArray[sequence] := new Window(sequence, currentActiveProfile, dispWin, dispClass, dispProc, dispX, dispY, dispW, dispH, RadMoveID)
 	selectMode := 0
 	gosub, GetWinCoords
 	return
@@ -736,10 +735,11 @@ GetWinCoords:
 	TitleMatchList := ClassMatchList := ProcessMatchList := ""
 	IniRead, currentActiveProfile, %config%, Settings, ActiveProfile
 	;~ IniRead, sections, %config%
-	For k, v in WinArray 
+	for k, v in WinArray 
 	{
 		if (WinArray[k].Profile != currentActiveProfile)
 			continue
+		;~ MsgBox, % "k: " k " v" v
 		thisMoveID := WinArray[k].MoveID
 		thisDisplayWin := WinArray[k].Title
 		thisDisplayClass := WinArray[k].Class
@@ -759,10 +759,11 @@ GetWinCoords:
 			ProcessMatchList .= thisDisplayProc "," ; add it to the matchlist
 			;~ ProcessSequenceList .= Seq "," ; add it to the sequence matchlist
 		}
-		thisMoveID := (thisMoveID = 1 ? "Title" : thisMoveID = 2 ? "Class" : thisMoveID = 3 ? "Process" : "ERROR")
+		thisMoveID_string := (thisMoveID = 1 ? "Title" : thisMoveID = 2 ? "Class" : thisMoveID = 3 ? "Process" : "ERROR")
+		;~ MsgBox, % thisMoveID_string "`n" thisMoveID "`n"WinArray[k].MoveID
 		LV_Add(""
 		, WinArray[k].SequenceID
-		, thisMoveID
+		, thisMoveID_string
 		, thisDisplayWin
 		, thisDisplayClass
 		, thisDisplayProc
@@ -1041,35 +1042,38 @@ _Main_GuiSize:
 {
 	Gui, _Main_:Default
 	Gui, +LastFound
-	Anchor("grpBx1","wh", "r")
-	Anchor("ListSelection","wh", "r")
-	Anchor("btnRemove","y", "r")
-	Anchor("btnEdit","y", "r")
-	Anchor("btnSetWindows", "y", "r")
-	Anchor("grpBx2","wy", "r")
-	Anchor("dispWin","y", "r")
-	Anchor("dispClass","y", "r")
-	Anchor("dispProc","y", "r")
-	Anchor("dispX","y", "r")
-	Anchor("dispXEdit","y", "r")
-	Anchor("dispY","y", "r")
-	Anchor("dispYEdit","y", "r")
-	Anchor("dispW","y", "r")
-	Anchor("dispWEdit","y", "r")
-	Anchor("dispH","y", "r")
-	Anchor("dispHEdit","y", "r")
-	Anchor("radMoveId","y", "r")
-	Anchor("Class:","y", "r")
-	Anchor("Process:","y", "r")
-	Anchor("lblXCoord","y", "r")
-	Anchor("lblYCoord","y", "r")
-	Anchor("lblWCoord","y", "r")
-	Anchor("lblHCoord","y", "r")
-	Anchor("btnSelectWin","y","r")
-	Anchor("btnSaveCoords","y", "r")
+	autoxywh("grpBx1","wh")
+	autoxywh("ListSelection","wh")
+	autoxywh("btnRemove","y")
+	autoxywh("btnEdit","y")
+	autoxywh("btnSetWindows", "y")
+	autoxywh("grpBx2","wy")
+	autoxywh("dispWin","yw")
+	autoxywh("dispClass","yw")
+	autoxywh("dispProc","yw")
+	autoxywh("dispX","y")
+	autoxywh("dispXEdit","y")
+	autoxywh("dispY","y")
+	autoxywh("dispYEdit","y")
+	autoxywh("dispW","y")
+	autoxywh("dispWEdit","y")
+	autoxywh("dispH","y")
+	autoxywh("dispHEdit","y")
+	autoxywh("radMoveId","y", true)
+	autoxywh("Class:","y", true)
+	autoxywh("Process:","y", true)
+	autoxywh("lblXCoord","y")
+	autoxywh("lblYCoord","y")
+	autoxywh("lblWCoord","y")
+	autoxywh("lblHCoord","y")
+	autoxywh("btnSelectWin","y")
+	autoxywh("btnSaveCoords","y")
+	autoxywh("lblCurrentProfile", "xy")
 	return
 }
 
+Esc::
+	ExitApp
 _Main_GuiClose:
 {
 	Gui, _Main_:Default
