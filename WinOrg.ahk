@@ -700,6 +700,10 @@ SaveCoords:
 	;~ MsgBox, % sequence
 	;~ IniWrite, % sequence, %config%, Settings, Sequence
 	;~ IniWrite, % sequence, %config%, % sequence, SequenceID
+	if (sequence == "") {
+		MsgBox, No sequence!
+		ExitApp
+	}
 	IniWrite, % currentActiveProfile, %config%, % sequence, Profile
 	IniWrite, % dispWin, %config%, % sequence, Title
 	IniWrite, % dispClass, %config%, % sequence, Class
@@ -739,7 +743,6 @@ GetWinCoords:
 	{
 		if (WinArray[k].Profile != currentActiveProfile)
 			continue
-		;~ MsgBox, % "k: " k " v" v
 		thisMoveID := WinArray[k].MoveID
 		thisDisplayWin := WinArray[k].Title
 		thisDisplayClass := WinArray[k].Class
@@ -747,17 +750,14 @@ GetWinCoords:
 		if (thisMoveID = 1) ; if moveID is based on title
 		{
 			TitleMatchList .= thisDisplayWin "," ; add it to the matchlist
-			;~ TitleSequenceList .= Seq "," ; add it to the sequence matchlist
 		}
 		else if (thisMoveID = 2) ; if moveID is based on ahk_class
 		{
 			ClassMatchList .= thisDisplayClass "," ; add it to the matchlist
-			;~ ClassSequenceList .= Seq "," ; add it to the sequence matchlist
 		}
 		else if (thisMoveID = 3) ; if moveID is based on process
 		{
 			ProcessMatchList .= thisDisplayProc "," ; add it to the matchlist
-			;~ ProcessSequenceList .= Seq "," ; add it to the sequence matchlist
 		}
 		thisMoveID_string := (thisMoveID = 1 ? "Title" : thisMoveID = 2 ? "Class" : thisMoveID = 3 ? "Process" : "ERROR")
 		;~ MsgBox, % thisMoveID_string "`n" thisMoveID "`n"WinArray[k].MoveID
@@ -822,63 +822,30 @@ GetActiveWin:
 	WinGet, thisActiveProcess, ProcessName, A
 	if thisActiveTitle in %TitleMatchList%
 	{
-		;~ Loop, Parse, TitleSequenceList, `,
 		For k, v in WinArray
 		{
-			if (WinArray[k].Profile != currentActiveProfile)
-				continue
-			if (WinArray[k].Title != thisActiveTitle)
-				continue
-			;~ IniRead, thisWin, %config%, % A_LoopField, Title
-			;~ if (thisWin != thisActiveTitle)
-				;~ continue
-			;~ IniRead, thisX, %config%, % A_LoopField, X
-			;~ IniRead, thisY, %config%, % A_LoopField, Y
-			;~ IniRead, thisW, %config%, % A_LoopField, W
-			;~ IniRead, thisH, %config%, % A_LoopField, H
-			WinMove, % thisActiveTitle,, % WinArray[k].XCoord, % WinArray[k].YCoord, % WinArray[k].Width, % WinArray[k].Height
+			if (WinArray[k].Profile == currentActiveProfile and WinArray[k].Title == thisActiveTitle) {
+				WinMove, % thisActiveTitle,, % WinArray[k].XCoord, % WinArray[k].YCoord, % WinArray[k].Width, % WinArray[k].Height
+			}
 		}
-		;~ WinMove, % thisActiveTitle,, % thisX, % thisY, % thisW, % thisH
 	}
 	else if thisActiveClass in %ClassMatchList%
 	{
-		;~ Loop, Parse, ClassSequenceList, `,
 		For k, v in WinArray
 		{
-			if (WinArray[k].Profile != currentActiveProfile)
-				continue
-			if (WinArray[k].Class != thisActiveClass)
-				continue
-			;~ IniRead, thisClass, %config%, % A_LoopField, Class
-			;~ if (thisClass != thisActiveClass)
-				;~ continue
-			;~ IniRead, thisX, %config%, % A_LoopField, X
-			;~ IniRead, thisY, %config%, % A_LoopField, Y
-			;~ IniRead, thisW, %config%, % A_LoopField, W
-			;~ IniRead, thisH, %config%, % A_LoopField, H
-			WinMove, % "ahk_class " thisActiveClass,, % WinArray[k].XCoord, % WinArray[k].YCoord, % WinArray[k].Width, % WinArray[k].Height
+			if (WinArray[k].Profile == currentActiveProfile and WinArray[k].Class == thisActiveClass) {
+				WinMove, % "ahk_class " thisActiveClass,, % WinArray[k].XCoord, % WinArray[k].YCoord, % WinArray[k].Width, % WinArray[k].Height
+			}
 		}
-		;~ WinMove, % "ahk_class " thisActiveClass,, % thisX, % thisY, % thisW, % thisH
 	}
 	else if thisActiveProcess in %ProcessMatchList%
 	{
-		;~ Loop, Parse, ProcessSequenceList, `,
 		For k, v in WinArray
 		{
-			if (WinArray[k].Profile != currentActiveProfile)
-				continue
-			if (WinArray[k].Process != thisActiveProcess) 
-				continue
-			;~ IniRead, thisProcess, %config%, % A_LoopField, Process
-			;~ if (thisProcess != thisActiveProcess)
-				;~ continue
-			;~ IniRead, thisX, %config%, % A_LoopField, X
-			;~ IniRead, thisY, %config%, % A_LoopField, Y
-			;~ IniRead, thisW, %config%, % A_LoopField, W
-			;~ IniRead, thisH, %config%, % A_LoopField, H
-			WinMove, % thisActiveTitle,, % WinArray[k].XCoord, % WinArray[k].YCoord, % WinArray[k].Width, % WinArray[k].Height
+			if (WinArray[k].Profile == currentActiveProfile and WinArray[k].Process == thisActiveProcess) {
+				WinMove, % thisActiveTitle,, % WinArray[k].XCoord, % WinArray[k].YCoord, % WinArray[k].Width, % WinArray[k].Height
+			}
 		}
-		;~ WinMove, % thisActiveTitle,, % thisX, % thisY, % thisW, % thisH
 	}
 	return
 }
