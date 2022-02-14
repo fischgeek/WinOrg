@@ -90,17 +90,17 @@ class Guid {
 	cPath := A_AppData "\WinOrg"
 	config := cPath "\WinOrg.ini"
 	host := "http://fischgeek.com/winorg"
-	gosub, CheckForUpdates
+	;~ gosub, CheckForUpdates
 	IfNotExist, %cPath%
 		FileCreateDir, %cPath%
 	IfNotExist, %config%
 	{
 		IniWrite, 0, %config%, Settings, ProfileSync
 	}
-	IfNotExist, %cPath%\winorg.ico
-		URLDownloadToFile, % host "/assets/winorg.ico", %cPath%\winorg.ico
-	IfNotExist, %cPath%\winorgp.ico
-		URLDownloadToFile, % host "/assets/winorgp.ico", %cPath%\winorgp.ico
+	;~ IfNotExist, %cPath%\winorg.ico
+		;~ URLDownloadToFile, % host "/assets/winorg.ico", %cPath%\winorg.ico
+	;~ IfNotExist, %cPath%\winorgp.ico
+		;~ URLDownloadToFile, % host "/assets/winorgp.ico", %cPath%\winorgp.ico
 	Try
 		Menu, tray, Icon, %cPath%\winorg.ico
 	SysGet, monCount, MonitorCount
@@ -237,11 +237,12 @@ class Guid {
 	}
 }
 
+;~ if (trayTipCount < 3)
+Gui, Show, AutoSize Center, WinOrg
+
 SetTimer, GetActiveWin, 100
 ;~ SetTimer, CheckVersion, 100
 gosub, DataFetch
-;~ if (trayTipCount < 3)
-	Gui, Show, AutoSize Center, WinOrg
 
 
 return ; end of auto-execution section
