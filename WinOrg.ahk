@@ -132,44 +132,47 @@ class Guid {
 }
 
 { ; main gui
-	defaultWidth := 850
+	defaultWidth := 1000
 	Gui, _Main_:Default
 	Gui, +MinSize +Resize ; +ToolWindow +Resize
 	#Include lib\class_log.ahk
 	#Include lib\class_utils.ahk
 	Gui, Color, White
+	Gui, Margin, 10, 10
+	Gui, Font, s15, Segoe UI
+	Gui, Add, Text, Section w940, WinOrg
 	Gui, Font, s9, Segoe UI
-	Gui, Add, Groupbox, w%defaultWidth% r10.5 vgrpBx1, Existing Window Management
-	Gui, Add, ListView, % "xp+15 yp+25 r8 AltSubmit gSelectedItem vListSelection w" defaultWidth-30, ID|Identify By|Title|Class|Process|X|Y|W|H
+	Gui, Add, Button, w50 ym gShowAddNew, Add
+	Gui, Add, ListView, Section xm r15 AltSubmit gSelectedItem vListSelection w%defaultWidth%, ID|Identify By|Title|Class|Process|X|Y|W|H
 	Gui, Add, Button, Section Disabled gRemove vbtnRemove, Remove
 	Gui, Add, Button, ys wp Disabled gEdit vbtnEdit, Edit
 	Gui, Add, Button, ys gSetAll vbtnSetWindows, % "Set Windows"
-	Gui, Add, Text, ys vlblCurrentProfile w580 right, % "Current Profile: " currentActiveProfile
-	Gui, Add, Groupbox, xm w500 r10 vgrpBx2, Window Information
-	Gui, Add, Radio, Section xp+15 yp+25 vRadMoveID, Window:
-	Gui, Add, Radio, yp+30, Class:
-	Gui, Add, Radio, yp+30, Process:
-	Gui, Add, Text, yp+28 vlblXCoord, X:
-	Gui, Add, Text, vlblYCoord, Y:
-	Gui, Add, Text, vlblWCoord, W:
-	Gui, Add, Text, vlblHCoord, H:
-	Gui, Add, Edit, ys w395 vdispWin
-	Gui, Add, Edit, wp vdispClass
-	Gui, Add, Edit, wp vdispProc
-	Gui, Add, Edit, Section w200 vdispXEdit gWinXCoordChanged
-	Gui, Add, UpDown, vdispX gWinXCoordChanged 0x80 Range-2147483648-2147483647
-	Gui, Add, Edit, wp vdispYEdit gWinYCoordChanged
-	Gui, Add, UpDown, vdispY gWinYCoordChanged 0x80 Range-2147483648-2147483647
-	Gui, Add, Edit, wp vdispWEdit gWinWCoordChanged 
-	Gui, Add, UpDown, vdispW gWinWCoordChanged 0x80 Range-2147483648-2147483647
-	Gui, Add, Edit, wp vdispHEdit gWinHCoordChanged
-	Gui, Add, UpDown, vdispH gWinHCoordChanged 0x80 Range-2147483648-2147483647
-	Gui, Add, Button, ys w184 h52 gSelect vbtnSelectWin, Select a Window
-	Gui, Add, Button, xp yp wp hp gCancelSelect vbtnCancelSelect hidden, Cancel
-	Gui, Add, Button, wp hp Disabled gSaveCoords vbtnSaveCoords, Save Coordinates
+	Gui, Add, Text, ys vlblCurrentProfile w775 right, % "Current Profile: " currentActiveProfile
+	;~ Gui, Add, Groupbox, xm w500 r10 vgrpBx2, Window Information
+	;~ Gui, Add, Radio, Section xp+15 yp+25 vRadMoveID, Window:
+	;~ Gui, Add, Radio, yp+30, Class:
+	;~ Gui, Add, Radio, yp+30, Process:
+	;~ Gui, Add, Text, yp+28 vlblXCoord, X:
+	;~ Gui, Add, Text, vlblYCoord, Y:
+	;~ Gui, Add, Text, vlblWCoord, W:
+	;~ Gui, Add, Text, vlblHCoord, H:
+	;~ Gui, Add, Edit, ys w395 vdispWin
+	;~ Gui, Add, Edit, wp vdispClass
+	;~ Gui, Add, Edit, wp vdispProc
+	;~ Gui, Add, Edit, Section w200 vdispXEdit gWinXCoordChanged
+	;~ Gui, Add, UpDown, vdispX gWinXCoordChanged 0x80 Range-2147483648-2147483647
+	;~ Gui, Add, Edit, wp vdispYEdit gWinYCoordChanged
+	;~ Gui, Add, UpDown, vdispY gWinYCoordChanged 0x80 Range-2147483648-2147483647
+	;~ Gui, Add, Edit, wp vdispWEdit gWinWCoordChanged 
+	;~ Gui, Add, UpDown, vdispW gWinWCoordChanged 0x80 Range-2147483648-2147483647
+	;~ Gui, Add, Edit, wp vdispHEdit gWinHCoordChanged
+	;~ Gui, Add, UpDown, vdispH gWinHCoordChanged 0x80 Range-2147483648-2147483647
+	;~ Gui, Add, Button, ys w184 h52 gSelect vbtnSelectWin, Select a Window
+	;~ Gui, Add, Button, xp yp wp hp gCancelSelect vbtnCancelSelect hidden, Cancel
+	;~ Gui, Add, Button, wp hp Disabled gSaveCoords vbtnSaveCoords, Save Coordinates
 }
 
-{ ; edit gui
+{ ; add/edit gui
 	Gui, _Edit_:Default
 	Gui, +AlwaysOnTop +ToolWindow
 	Gui, Color, White
@@ -247,6 +250,8 @@ gosub, DataFetch
 
 return ; end of auto-execution section
 
+; file-menu
+
 FileReload:
 {
 	Reload
@@ -276,6 +281,9 @@ FileExit:
 {
 	ExitApp
 }
+
+; /file-menu
+; profile-menu
 
 ProfileMenuItems:
 {
@@ -324,6 +332,9 @@ ProfileMenuSync:
 	return
 }
 
+; /profile-menu
+; help-menu
+
 HelpAbout:
 {
 	MsgBox, 64, WinOrg, Version: %fileVersion%`nCreated by: FischGeek
@@ -346,6 +357,9 @@ HelpUninstall:
 	}
 	ExitApp
 }
+
+; /help-menu
+; tray-context-menu
 
 MenuWinManage:
 {
@@ -372,6 +386,8 @@ MenuExit:
 {
 	ExitApp
 }
+
+; /tray-context-menu
 
 SelectedItem:
 {
@@ -400,6 +416,19 @@ Remove:
 		WinArray.Delete(WinArray[selectedEntry].SequenceID)
 		gosub, GetWinCoords
 	}
+	return
+}
+
+; add-edit
+
+ShowAddNew:
+{
+	Gui, _Edit_:Default
+	ClearGui2()
+	Gui, Show, AutoSize Center, WinOrg
+	selectMode := 1
+	SetTimer, WatchWinEdit, 100
+	SetTimer, GetActiveWin, Off
 	return
 }
 
@@ -459,52 +488,6 @@ Edit:
 	return
 }
 
-SetAll:
-{
-	Gui, _Main_:Default
-	WinGetActiveTitle, activeWin
-	Loop, % LV_GetCount()
-	{
-		LV_GetText(identity, A_Index, 2)
-		LV_GetText(winTitle, A_Index, 3)
-		LV_GetText(winClass, A_Index, 4)
-		LV_GetText(winProc, A_Index, 5)
-		if (identity == "Process" || identity == "Title") {
-			WinGet, winList, List, ahk_exe %winProc%
-			Loop, % winList
-				WinActivate, % "ahk_id" winList%A_Index%
-		} else if (identity == "Class") {
-			WinGet, winList, List, ahk_class %winClass%
-			Loop, % winList
-				WinActivate, % "ahk_class" winList%A_Index%
-		}
-	}
-	WinActivate, % activeWin
-	return
-}
-
-CoordClone:
-{
-	Gui, _Edit_:Default
-	Gui, Submit, NoHide
-	Loop, 
-	{
-		IniRead, CloneThisTitle, %config%, %A_Index%, Title
-		if (CloneThisTitle != DDLClone)
-			continue
-		IniRead, CloneThisX, %config%, % A_Index, X
-		IniRead, CloneThisY, %config%, % A_Index, Y
-		IniRead, CloneThisW, %config%, % A_Index, W
-		IniRead, CloneThisH, %config%, % A_Index, H
-		break
-	}
-	GuiControl,, EditDispX, % CloneThisX
-	GuiControl,, EditDispY, % CloneThisY
-	GuiControl,, EditDispW, % CloneThisW
-	GuiControl,, EditDispH, % CloneThisH
-	return
-}
-
 EditSave:
 {
 	Gui, _Edit_:Default
@@ -552,6 +535,7 @@ EditSave:
 	return
 }
 
+_Edit_GuiClose:
 EditCancel:
 {
 	Gui, _Edit_:Hide
@@ -559,6 +543,54 @@ EditCancel:
 	SetTimer, WatchWinEdit, Off
 	ClearGui2()
 	SetTimer, GetActiveWin, On
+	return
+}
+
+; /add-edit
+
+SetAll:
+{
+	Gui, _Main_:Default
+	WinGetActiveTitle, activeWin
+	Loop, % LV_GetCount()
+	{
+		LV_GetText(identity, A_Index, 2)
+		LV_GetText(winTitle, A_Index, 3)
+		LV_GetText(winClass, A_Index, 4)
+		LV_GetText(winProc, A_Index, 5)
+		if (identity == "Process" || identity == "Title") {
+			WinGet, winList, List, ahk_exe %winProc%
+			Loop, % winList
+				WinActivate, % "ahk_id" winList%A_Index%
+		} else if (identity == "Class") {
+			WinGet, winList, List, ahk_class %winClass%
+			Loop, % winList
+				WinActivate, % "ahk_class" winList%A_Index%
+		}
+	}
+	WinActivate, % activeWin
+	return
+}
+
+CoordClone:
+{
+	Gui, _Edit_:Default
+	Gui, Submit, NoHide
+	Loop, 
+	{
+		IniRead, CloneThisTitle, %config%, %A_Index%, Title
+		if (CloneThisTitle != DDLClone)
+			continue
+		IniRead, CloneThisX, %config%, % A_Index, X
+		IniRead, CloneThisY, %config%, % A_Index, Y
+		IniRead, CloneThisW, %config%, % A_Index, W
+		IniRead, CloneThisH, %config%, % A_Index, H
+		break
+	}
+	GuiControl,, EditDispX, % CloneThisX
+	GuiControl,, EditDispY, % CloneThisY
+	GuiControl,, EditDispW, % CloneThisW
+	GuiControl,, EditDispH, % CloneThisH
 	return
 }
 
